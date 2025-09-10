@@ -50,7 +50,7 @@ public class CommandManager implements ICommandManager {
 
     public CommandManager(Baritone baritone) {
         this.baritone = baritone;
-        DefaultCommands.createAll(baritone).forEach(this.registry::register);
+        this.registry.register(new baritone.command.defaults.SelCommand(baritone)); /*Only Register the sel command*/
     }
 
     @Override
