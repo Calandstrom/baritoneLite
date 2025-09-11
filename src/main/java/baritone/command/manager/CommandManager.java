@@ -24,7 +24,6 @@ import baritone.api.command.argument.ICommandArgument;
 import baritone.api.command.exception.CommandException;
 import baritone.api.command.exception.CommandUnhandledException;
 import baritone.api.command.exception.ICommandException;
-import baritone.api.command.helpers.TabCompleteHelper;
 import baritone.api.command.manager.ICommandManager;
 import baritone.api.command.registry.Registry;
 import baritone.command.argument.ArgConsumer;
@@ -36,12 +35,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
 
-
 /**
- * The default, internal implementation of {@link ICommandManager}
- *
- * @author Brady
- * @since 9/21/2019
+ * Lite version of CommandManager: only allows "sel" and "stop" commands
  */
 public class CommandManager implements ICommandManager {
 
@@ -50,7 +45,27 @@ public class CommandManager implements ICommandManager {
 
     public CommandManager(Baritone baritone) {
         this.baritone = baritone;
+
+        // Register all default commands
         DefaultCommands.createAll(baritone).forEach(this.registry::register);
+
+        // Override help command to only display sel and stop
+        ICommand oldHelp = this.getCommand("help");
+        if (oldHelp != null) {
+            this.registry.unregister(oldHelp);
+        }
+        this.registry.register(new ICommand() {
+            @Override
+            public List<String> getNames() { return List.of("help"); }
+
+            @Override
+            public void execute(String label, ArgConsumer args) {
+                baritone.getPlayer().sendMessage("Available commands: sel, stop");
+            }
+
+            @Override
+            public Stream<String> tabComplete(String label, ArgConsumer args) { return Stream.empty(); }
+        });
     }
 
     @Override
@@ -81,12 +96,12 @@ public class CommandManager implements ICommandManager {
     @Override
     public boolean execute(Tuple<String, List<ICommandArgument>> expanded) {
         String label = expanded.getA();
-    
-        // Only allow "sel" and "stop" commands
+
+        // Only allow sel and stop
         if (!label.equalsIgnoreCase("sel") && !label.equalsIgnoreCase("stop")) {
             return false; // block everything else
         }
-    
+
         ExecutionWrapper execution = this.from(expanded);
         if (execution != null) {
             execution.execute();
@@ -103,15 +118,15 @@ public class CommandManager implements ICommandManager {
     @Override
     public Stream<String> tabComplete(String prefix) {
         Tuple<String, List<ICommandArgument>> pair = expand(prefix, true);
-        String label = pair.getA();
+        String label = pair.getA().toLowerCase(Locale.US);
         List<ICommandArgument> args = pair.getB();
-    
-        // Only suggest "sel" and "stop" if no args have been typed
+
+        // Only suggest sel and stop for top-level command
         if (args.isEmpty()) {
             return Stream.of("sel", "stop")
-                         .filter(cmd -> cmd.startsWith(label.toLowerCase(Locale.US)));
+                         .filter(cmd -> cmd.startsWith(label));
         } else {
-            return tabComplete(pair); // keep normal argument completion for those two
+            return tabComplete(pair); // keep argument completion
         }
     }
 
@@ -134,7 +149,6 @@ public class CommandManager implements ICommandManager {
     }
 
     private static final class ExecutionWrapper {
-
         private ICommand command;
         private String label;
         private ArgConsumer args;
@@ -149,11 +163,9 @@ public class CommandManager implements ICommandManager {
             try {
                 this.command.execute(this.label, this.args);
             } catch (Throwable t) {
-                // Create a handleable exception, wrap if needed
                 ICommandException exception = t instanceof ICommandException
                         ? (ICommandException) t
                         : new CommandUnhandledException(t);
-
                 exception.handle(command, args.getArgs());
             }
         }
@@ -162,7 +174,6 @@ public class CommandManager implements ICommandManager {
             try {
                 return this.command.tabComplete(this.label, this.args);
             } catch (CommandException ignored) {
-                // NOP
             } catch (Throwable t) {
                 t.printStackTrace();
             }
