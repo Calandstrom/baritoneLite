@@ -105,13 +105,13 @@ public class CommandManager implements ICommandManager {
         Tuple<String, List<ICommandArgument>> pair = expand(prefix, true);
         String label = pair.getA();
         List<ICommandArgument> args = pair.getB();
+    
+        // Only suggest "sel" and "stop" if no args have been typed
         if (args.isEmpty()) {
-            return new TabCompleteHelper()
-                    .addCommands(this.baritone.getCommandManager())
-                    .filterPrefix(label)
-                    .stream();
+            return Stream.of("sel", "stop")
+                         .filter(cmd -> cmd.startsWith(label.toLowerCase(Locale.US)));
         } else {
-            return tabComplete(pair);
+            return tabComplete(pair); // keep normal argument completion for those two
         }
     }
 
