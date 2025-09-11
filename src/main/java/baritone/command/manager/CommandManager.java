@@ -19,12 +19,12 @@ package baritone.command.manager;
 
 import baritone.Baritone;
 import baritone.api.IBaritone;
-import baritone.api.command.Command;
 import baritone.api.command.ICommand;
 import baritone.api.command.argument.ICommandArgument;
 import baritone.api.command.exception.CommandException;
 import baritone.api.command.exception.CommandUnhandledException;
 import baritone.api.command.exception.ICommandException;
+import baritone.api.command.helpers.TabCompleteHelper;
 import baritone.api.command.manager.ICommandManager;
 import baritone.api.command.registry.Registry;
 import baritone.command.argument.ArgConsumer;
@@ -36,8 +36,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
 
+
 /**
- * Lite version of CommandManager: only allows "sel" and "stop" commands
+ * The default, internal implementation of {@link ICommandManager}
+ *
+ * @author Brady
+ * @since 9/21/2019
  */
 public class CommandManager implements ICommandManager {
 
@@ -46,45 +50,7 @@ public class CommandManager implements ICommandManager {
 
     public CommandManager(Baritone baritone) {
         this.baritone = baritone;
-
-        // Register all default commands (keeps registry intact to avoid crashes)
         DefaultCommands.createAll(baritone).forEach(this.registry::register);
-
-        // Replace the help command with a tiny one that only shows sel and stop.
-        // We subclass baritone.api.command.Command to get access to Helper logging methods.
-        ICommand oldHelp = this.getCommand("help");
-        if (oldHelp != null) {
-            this.registry.unregister(oldHelp);
-        }
-
-        // Register a minimal help command that only exposes sel and stop
-        this.registry.register(new Command((IBaritone) baritone, "help") {
-            @Override
-            public void execute(String label, ArgConsumer args) {
-                // Use logDirect to output text in the client's log/chat area
-                logDirect("Available commands: sel, stop");
-            }
-
-            @Override
-            public String getShortDesc() {
-                return "Lite help (shows sel, stop)";
-            }
-
-            @Override
-            public String getLongDesc() {
-                return "Lite help: only sel and stop are available in this build.";
-            }
-
-            @Override
-            public boolean hiddenFromHelp() {
-                return false;
-            }
-
-            @Override
-            public Stream<String> tabComplete(String label, ArgConsumer args) {
-                return Stream.empty();
-            }
-        });
     }
 
     @Override
@@ -115,12 +81,12 @@ public class CommandManager implements ICommandManager {
     @Override
     public boolean execute(Tuple<String, List<ICommandArgument>> expanded) {
         String label = expanded.getA();
-
+    
         // Only allow "sel" and "stop" commands
         if (!label.equalsIgnoreCase("sel") && !label.equalsIgnoreCase("stop")) {
             return false; // block everything else
         }
-
+    
         ExecutionWrapper execution = this.from(expanded);
         if (execution != null) {
             execution.execute();
@@ -137,13 +103,13 @@ public class CommandManager implements ICommandManager {
     @Override
     public Stream<String> tabComplete(String prefix) {
         Tuple<String, List<ICommandArgument>> pair = expand(prefix, true);
-        String label = pair.getA().toLowerCase(Locale.US);
+        String label = pair.getA();
         List<ICommandArgument> args = pair.getB();
-
+    
         // Only suggest "sel" and "stop" if no args have been typed
         if (args.isEmpty()) {
             return Stream.of("sel", "stop")
-                         .filter(cmd -> cmd.startsWith(label));
+                         .filter(cmd -> cmd.startsWith(label.toLowerCase(Locale.US)));
         } else {
             return tabComplete(pair); // keep normal argument completion for those two
         }
@@ -200,11 +166,6 @@ public class CommandManager implements ICommandManager {
             } catch (Throwable t) {
                 t.printStackTrace();
             }
-            return Stream.empty();
-        }
-    }
-}
-
             return Stream.empty();
         }
     }
