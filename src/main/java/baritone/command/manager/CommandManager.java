@@ -82,8 +82,8 @@ public class CommandManager implements ICommandManager {
     public boolean execute(Tuple<String, List<ICommandArgument>> expanded) {
         String label = expanded.getA();
     
-        // Only allow "sel" command
-        if (!label.equalsIgnoreCase("sel")) {
+        // Only allow "sel" and "stop" commands
+        if (!label.equalsIgnoreCase("sel") && !label.equalsIgnoreCase("stop")) {
             return false; // block everything else
         }
     
