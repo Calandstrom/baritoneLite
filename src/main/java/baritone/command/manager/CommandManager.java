@@ -51,12 +51,6 @@ public class CommandManager implements ICommandManager {
     public CommandManager(Baritone baritone) {
         this.baritone = baritone;
         DefaultCommands.createAll(baritone).forEach(this.registry::register);
-        
-        // Keep only "sel" and "stop"
-        this.registry.entries.removeIf(cmd -> {
-            String name = cmd.getNames().get(0).toLowerCase(Locale.US);
-            return !name.equals("sel") && !name.equals("stop");
-        });
     }
 
     @Override
