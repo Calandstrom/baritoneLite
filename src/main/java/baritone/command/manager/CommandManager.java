@@ -50,7 +50,10 @@ public class CommandManager implements ICommandManager {
 
     public CommandManager(Baritone baritone) {
         this.baritone = baritone;
-        this.registry.register(new baritone.command.defaults.SelCommand(baritone)); /*Only Register the sel command*/
+        DefaultCommands.createAll(baritone)
+            .stream()
+            .filter(command -> command.getNames().contains("sel") || command.getNames().contains("stop"))
+            .forEach(this.registry::register);
     }
 
     @Override
@@ -80,6 +83,13 @@ public class CommandManager implements ICommandManager {
 
     @Override
     public boolean execute(Tuple<String, List<ICommandArgument>> expanded) {
+        String label = expanded.getA();
+    
+        // Only allow "sel" and "stop" commands
+        if (!label.equalsIgnoreCase("sel") && !label.equalsIgnoreCase("stop")) {
+            return false; // block everything else
+        }
+    
         ExecutionWrapper execution = this.from(expanded);
         if (execution != null) {
             execution.execute();
@@ -98,13 +108,13 @@ public class CommandManager implements ICommandManager {
         Tuple<String, List<ICommandArgument>> pair = expand(prefix, true);
         String label = pair.getA();
         List<ICommandArgument> args = pair.getB();
+    
+        // Only suggest "sel" and "stop" if no args have been typed
         if (args.isEmpty()) {
-            return new TabCompleteHelper()
-                    .addCommands(this.baritone.getCommandManager())
-                    .filterPrefix(label)
-                    .stream();
+            return Stream.of("sel", "stop")
+                         .filter(cmd -> cmd.startsWith(label.toLowerCase(Locale.US)));
         } else {
-            return tabComplete(pair);
+            return tabComplete(pair); // keep normal argument completion for those two
         }
     }
 
