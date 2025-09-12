@@ -50,7 +50,10 @@ public class CommandManager implements ICommandManager {
 
     public CommandManager(Baritone baritone) {
         this.baritone = baritone;
-        DefaultCommands.createAll(baritone).forEach(this.registry::register);
+        DefaultCommands.createAll(baritone)
+            .stream()
+            .filter(command -> command.getNames().contains("sel") || command.getNames().contains("stop"))
+            .forEach(this.registry::register);
     }
 
     @Override
