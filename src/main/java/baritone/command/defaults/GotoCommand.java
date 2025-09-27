@@ -38,22 +38,25 @@ public class GotoCommand extends Command {
 
     @Override
     public void execute(String label, IArgConsumer args) throws CommandException {
-        // Require at least X and Z, at most X Y Z
-        args.requireMin(2);
-        args.requireMax(3);
+        int count = args.size();
+
+        // Check argument count manually instead of requireMin/Max
+        if (count < 2 || count > 3) {
+            logDirect("Please use a coordinate system: x z or x y z");
+            return;
+        }
 
         // Make sure the first arg looks like a coordinate
         if (args.peekDatatypeOrNull(RelativeCoordinate.INSTANCE) == null) {
-            logDirect("Invalid arguments: goto only supports coordinates (x z or x y z)");
-        } else {
-            BetterBlockPos origin = ctx.playerFeet();
-            Goal goal = args.getDatatypePost(RelativeGoal.INSTANCE, origin);
-
-            logDirect(String.format("Going to: %s", goal.toString()));
-            baritone.getCustomGoalProcess().setGoalAndPath(goal);
-
+            logDirect("Please use a coordinate system: x z or x y z");
+            return;
         }
 
+        BetterBlockPos origin = ctx.playerFeet();
+        Goal goal = args.getDatatypePost(RelativeGoal.INSTANCE, origin);
+
+        logDirect(String.format("Going to: %s", goal.toString()));
+        baritone.getCustomGoalProcess().setGoalAndPath(goal);
     }
 
     @Override
