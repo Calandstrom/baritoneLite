@@ -45,13 +45,15 @@ public class GotoCommand extends Command {
         // Make sure the first arg looks like a coordinate
         if (args.peekDatatypeOrNull(RelativeCoordinate.INSTANCE) == null) {
             logDirect("Invalid arguments: goto only supports coordinates (x z or x y z)");
+        } else {
+            BetterBlockPos origin = ctx.playerFeet();
+            Goal goal = args.getDatatypePost(RelativeGoal.INSTANCE, origin);
+
+            logDirect(String.format("Going to: %s", goal.toString()));
+            baritone.getCustomGoalProcess().setGoalAndPath(goal);
+
         }
 
-        BetterBlockPos origin = ctx.playerFeet();
-        Goal goal = args.getDatatypePost(RelativeGoal.INSTANCE, origin);
-
-        logDirect(String.format("Going to: %s", goal.toString()));
-        baritone.getCustomGoalProcess().setGoalAndPath(goal);
     }
 
     @Override
