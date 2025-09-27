@@ -38,22 +38,24 @@ public class GotoCommand extends Command {
 
     @Override
     public void execute(String label, IArgConsumer args) throws CommandException {
-        // Do our own checks so we can control the message the user sees
+        // Check argument count (2 or 3 only)
         if (!args.has(2) || !args.hasAtMost(3)) {
-            logDirect("Please use a coordinate system x y z or x y");
+            throw new CommandException("Please use a coordinate system: x z or x y z");
         }
 
         // Ensure the first token parses as a coordinate (relative or absolute)
         if (args.peekDatatypeOrNull(RelativeCoordinate.INSTANCE) == null) {
-            logDirect("Please use a coordinate system x y z or x y");
+            throw new CommandException("Please use a coordinate system: x z or x y z");
         }
 
+        // If we reach here, args are valid
         BetterBlockPos origin = ctx.playerFeet();
         Goal goal = args.getDatatypePost(RelativeGoal.INSTANCE, origin);
 
         logDirect(String.format("Going to: %s", goal.toString()));
         baritone.getCustomGoalProcess().setGoalAndPath(goal);
     }
+
 
 
     @Override
