@@ -38,18 +38,14 @@ public class GotoCommand extends Command {
 
     @Override
     public void execute(String label, IArgConsumer args) throws CommandException {
-        int count = args.size();
-
-        // Check argument count manually instead of requireMin/Max
-        if (count < 2 || count > 3) {
-            logDirect("Please use a coordinate system: x z or x y z");
-            return;
+        // Do our own checks so we can control the message the user sees
+        if (!args.has(2) || !args.hasAtMost(3)) {
+            logDirect("Please use a coordinate system x y z or x y");
         }
 
-        // Make sure the first arg looks like a coordinate
+        // Ensure the first token parses as a coordinate (relative or absolute)
         if (args.peekDatatypeOrNull(RelativeCoordinate.INSTANCE) == null) {
-            logDirect("Please use a coordinate system: x z or x y z");
-            return;
+            logDirect("Please use a coordinate system x y z or x y");
         }
 
         BetterBlockPos origin = ctx.playerFeet();
@@ -58,6 +54,7 @@ public class GotoCommand extends Command {
         logDirect(String.format("Going to: %s", goal.toString()));
         baritone.getCustomGoalProcess().setGoalAndPath(goal);
     }
+
 
     @Override
     public Stream<String> tabComplete(String label, IArgConsumer args) throws CommandException {
