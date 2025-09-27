@@ -40,12 +40,14 @@ public class GotoCommand extends Command {
     public void execute(String label, IArgConsumer args) throws CommandException {
         // Check argument count (2 or 3 only)
         if (!args.has(2) || !args.hasAtMost(3)) {
-            throw new CommandException("Please use a coordinate system: x z or x y z");
+            logDirect("Please use a coordinate system: x z or x y z");
+            return;
         }
 
         // Ensure the first token parses as a coordinate (relative or absolute)
         if (args.peekDatatypeOrNull(RelativeCoordinate.INSTANCE) == null) {
-            throw new CommandException("Please use a coordinate system: x z or x y z");
+            logDirect("Please use a coordinate system: x z or x y z");
+            return;
         }
 
         // If we reach here, args are valid
