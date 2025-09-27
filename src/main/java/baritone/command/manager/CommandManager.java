@@ -52,7 +52,7 @@ public class CommandManager implements ICommandManager {
         this.baritone = baritone;
         DefaultCommands.createAll(baritone)
             .stream()
-            .filter(command -> command.getNames().contains("sel") || command.getNames().contains("stop"))
+            .filter(command -> command.getNames().contains("sel") || command.getNames().contains("stop") || command.getNames().contains("goto"))
             .forEach(this.registry::register);
     }
 
@@ -86,7 +86,7 @@ public class CommandManager implements ICommandManager {
         String label = expanded.getA();
     
         // Only allow "sel" and "stop" commands
-        if (!label.equalsIgnoreCase("sel") && !label.equalsIgnoreCase("stop")) {
+        if (!label.equalsIgnoreCase("sel") && !label.equalsIgnoreCase("stop") && !label.equalsIgnoreCase("goto")) {
             return false; // block everything else
         }
     
@@ -111,7 +111,7 @@ public class CommandManager implements ICommandManager {
     
         // Only suggest "sel" and "stop" if no args have been typed
         if (args.isEmpty()) {
-            return Stream.of("sel", "stop")
+            return Stream.of("sel", "stop", "goto")
                          .filter(cmd -> cmd.startsWith(label.toLowerCase(Locale.US)));
         } else {
             return tabComplete(pair); // keep normal argument completion for those two
