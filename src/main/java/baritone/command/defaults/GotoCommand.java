@@ -44,7 +44,7 @@ public class GotoCommand extends Command {
 
         // Make sure the first arg looks like a coordinate
         if (args.peekDatatypeOrNull(RelativeCoordinate.INSTANCE) == null) {
-            throw new CommandException("Invalid arguments: goto only supports coordinates (x z or x y z)");
+            logDirect("Invalid arguments: goto only supports coordinates (x z or x y z)");
         }
 
         BetterBlockPos origin = ctx.playerFeet();
