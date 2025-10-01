@@ -3,10 +3,10 @@
   "id": "baritone",
   "version": "${version}",
 
-  "name": "Baritone",
-  "description": "Google Maps for Blockgame",
+  "name": "BaritoneLite",
+  "description": "Weaker Google Maps for everyone's favorite block game",
   "authors": [
-    "leijurv", "Brady"
+    "leijurv", "Brady", "theTotalTotal"
   ],
   "contact": {
     "homepage": "https://github.com/cabaletta/baritone",
