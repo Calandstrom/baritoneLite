@@ -119,28 +119,27 @@ sourceSets {
         compileClasspath += main.compileClasspath
         runtimeClasspath += main.runtimeClasspath
     }
-
     main {
-        compileClasspath += api.output + schematica_api.output
-        runtimeClasspath += api.output + schematica_api.output
+        compileClasspath += api.output
+        runtimeClasspath += api.output
     }
-
     test {
         compileClasspath += main.compileClasspath + main.runtimeClasspath + main.output
         runtimeClasspath += main.compileClasspath + main.runtimeClasspath + main.output
     }
-
     launch {
         compileClasspath += main.compileClasspath + main.runtimeClasspath + main.output
         runtimeClasspath += main.compileClasspath + main.runtimeClasspath + main.output
     }
-
     schematica_api {
         compileClasspath += main.compileClasspath
         runtimeClasspath += main.runtimeClasspath
     }
+    main {
+        compileClasspath += schematica_api.output
+        runtimeClasspath += schematica_api.output
+    }
 }
-
 
 dependencies {
     testImplementation 'junit:junit:4.13.2'
