@@ -91,7 +91,7 @@ allprojects {
 
         mappings {
             intermediary()
-            mojmap()
+            //mojmap()
 
 
             // CHECK IF BUILD FAILS BEFORE UNCOMMENTING THIS
