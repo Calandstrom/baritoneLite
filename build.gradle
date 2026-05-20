@@ -91,14 +91,13 @@ allprojects {
 
         mappings {
             intermediary()
-            //mojmap()
 
 
             // CHECK IF BUILD FAILS BEFORE UNCOMMENTING THIS
             // IF BUILD FAILS UPDATE TO 21.6 and find the new version of the mappings
+            //mojmap()
             //parchment("1.21.4", "2025.03.23")
-
-            devFallbackNamespace "official"
+            //devFallbackNamespace "official"
         }
     }
 
